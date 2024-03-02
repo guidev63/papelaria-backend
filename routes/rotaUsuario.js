@@ -43,8 +43,8 @@ router.get("/", (req, res, next) => {
 
 })
 router.get("/:id", (req, res, next) => {
-    const{id}=req.params;
-    db.all("SELECT * FROM usuario WHERE  id=?",[id],(error, rows) => {
+    const { id } = req.params;
+    db.all("SELECT * FROM usuario WHERE  id=?", [id], (error, rows) => {
         if (error) {
             return res.status(500).send({
                 error: error.message
@@ -69,7 +69,8 @@ router.get("/nomes", (req, res, next) => {
 
     res.json(nomes)
 })
-router.post("/", (req, res, next) => {
+
+router.post("/logon", (req, res, next) => {
 
     const { nome, email, senha } = req.body;
 
@@ -94,35 +95,37 @@ router.post("/", (req, res, next) => {
 
 });
 router.put("/", (req, res, next) => {
-    const {id,nome,email,senha} = req.body;
+    const { id, nome, email, senha } = req.body;
     db.run("UPDATE usuario SET nome=?,email=?,senha=? WHERE id=?",
-    [nome,email,senha,id],function(error){
-        if (error) {
-            return res.status(500).send({
-                error: error.message
-            });
-        }
-        res.status(200).send({
-            mensagem: "Cadastro Alterado com Sucesso!",
+        [nome, email, senha, id], function (error) {
+            if (error) {
+                return res.status(500).send({
+                    error: error.message
+                });
+            }
+            res.status(200).send({
+                mensagem: "Cadastro Alterado com Sucesso!",
+            })
         })
-    })
+
+
 
 
 });
 router.delete("/:id", (req, res, next) => {
     const { id } = req.params;
-    db.all("DELETE  FROM usuario WHERE id= ?",id, (error) => {
+    db.all("DELETE  FROM usuario WHERE id= ?", id, (error) => {
         if (error) {
             return res.status(500).send({
                 error: error.message
             });
         }
         res.status(200).send({
-            mensagem:"Cadastro deletado com sucesso!!"
+            mensagem: "Cadastro deletado com sucesso!!"
         })
     });
 
-    
-  
-  });
+
+
+});
 module.exports = router;
