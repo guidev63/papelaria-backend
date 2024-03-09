@@ -4,9 +4,16 @@ const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("database.db");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+
 // Mensagens de sucesso e erro
+
 const SUCCESS_MESSAGE = "Operação realizada com sucesso";
 const ERROR_MESSAGE = "Erro ao executar operação";
+
+
+
+
+
 
 // Rota para fazer login
 router.post('/login', (req, res, next) => {
@@ -101,7 +108,7 @@ router.post('/', (req, res, next) => {
 
     // Validação dos campos
     let msg = [];
-    if (!nome || nome.length < 3) {
+    if (!id || id.length < 3) {
         msg.push({ mensagem: "Nome inválido! Deve ter pelo menos 3 caracteres." });
     }
     if (!email || !validateEmail(email)) {
@@ -120,6 +127,7 @@ router.post('/', (req, res, next) => {
     // Verifica se o email já está cadastrado
     db.get(`SELECT * FROM usuario WHERE email = ?`, [email], (error, usuarioExistente) => {
         if (error) {
+            console.log(error)
             return res.status(500).send({
                 error: error.message,
                 response: null
