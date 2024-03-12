@@ -8,12 +8,13 @@ const jwt = require('jsonwebtoken');
 const SUCCESS_MESSAGE = "Operação realizada com sucesso";
 const ERROR_MESSAGE = "Erro ao executar operação";
 
+ 
 
 // Rota para obter um usuário pelo ID
 router.get("/:id", (req, res, next) => {
     const { id } = req.params;
 
-    db.all("SELECT * FROM PRODUTO WHERE id=?", [id], (error, rows) => {
+    db.all("SELECT * FROM Entrada WHERE id=?", [id], (error, rows) => {
         if (error) {
             return res.status(500).send({
                 error: error.message
@@ -21,26 +22,31 @@ router.get("/:id", (req, res, next) => {
         }
 
         res.status(200).send({
-            mensagem: "Aqui está o Produto solicitado",
-            produto: rows
+            mensagem: "Aqui está a Entrada  solicitado",
+            entrada: rows
         });
     });
 });
 
+
+
 // Rota para listar todos os usuários
 router.get("/", (req, res, next) => {
-    db.all("SELECT * FROM produto ", (error, rows) => {
+    db.all("SELECT * FROM entrada ", (error, rows) => {
         if (error) {
             return res.status(500).send({
                 error: error.message
             });
         }
         res.status(200).send({
-            mensagem: "Aqui estão todos os Produto",
+            mensagem: "Aqui estão todas as Entradas",
             produtos: rows
         });
     });
 });
+
+
+
 
 // Rota para listar apenas nomes e emails dos usuários
 //router.get("/nomes", (req, res, next) => {
@@ -54,9 +60,12 @@ router.get("/", (req, res, next) => {
 //   });
 //});
 
+
+
+
 // Rota para criar um novo usuário
 router.post('/', (req, res, nxt) => {
-    db.run("CREATE TABLE IF NOT EXISTS produto (id INTEGER PRIMARY KEY AUTOINCREMENT, status TEXT, descricao TEXT, estoqueminimo REAL, estoquemaximo REAL)", (createTableError) => {
+    db.run("CREATE TABLE IF NOT EXISTS entrada (id INTEGER PRIMARY KEY AUTOINCREMENT, id_produto INTEGER, quantidade REAL, valor_unitario REAL, data_entrada REAL)", (createTableError) => {
 
         if (createTableError) {
             return res.status(500).send({
@@ -67,19 +76,19 @@ router.post('/', (req, res, nxt) => {
         // O restante do código, se necessário...
     });
 
-    const { status, descricao, estoque_minimo, estoque_maximo } = req.body;
+    const {id_produto , quantidade, valor_unitario,data_entrada } = req.body;
 
     // Validação dos campos
     let msg = [];
     var regex = /^[0-9]+$/
-    if (!status) {
+    if (!id_produto) {
         console.log("status deu merda")
-        msg.push({ mensagem: "Status inválido! Não pode ser vazio." });
+        msg.push({ mensagem: "id do produto inválido! Não pode ser vazio." });
     }
     console.log("erro linha 95")
-    if (!descricao || descricao.length < 3) {
+    if (!quantidade || quantidade.length > 0) {
         console.log("descrição deu merda")
-        msg.push({ mensagem: "descrição inválida!" });
+        msg.push({ mensagem: "Quantidade inválida!" });
     }
     // if (!estoqueminimo || senha.length < 6) {
     //     msg.push({ mensagem: "Senha inválida! Deve ter pelo menos 6 caracteres." });
@@ -89,26 +98,12 @@ router.post('/', (req, res, nxt) => {
     // }
     if (msg.length > 0) {
         return res.status(400).send({
-            mensagem: "Falha ao cadastrar Produto.",
+            mensagem: "Falha ao cadastrar Entrada.",
             erros: msg
         });
     }
 
-    // Verifica se o email já está cadastrado
-    db.get(`SELECT * FROM produto WHERE descricao  = ?`, [descricao], (error, produtoExistente) => {
-        if (error) {
-            console.log(error)
-            return res.status(500).send({
-                error: error.message,
-                response: null
-            });
-        }
-
-        if (produtoExistente) {
-            return res.status(400).send({
-                mensagem: "Produto já cadastrado."
-            });
-        }
+    
 
         // Hash da senha antes de salvar no banco de dados
         //  bcrypt.hash(senha, 10, (hashError, hashedPassword) => {
@@ -123,8 +118,8 @@ router.post('/', (req, res, nxt) => {
 
 
         // Insere o novo usuário no banco de dados
-        db.run(`INSERT INTO PRODUTO ( status, descricao,estoque_minimo,estoque_maximo) VALUES (?,?,?,?)`,
-            [status, descricao, estoque_minimo, estoque_maximo], function (insertError) {
+        db.run(`INSERT INTO ENTRADA ( id_produto, quantidade,valor_unitario,data_entrada) VALUES (?,?,?,?)`,
+            [id_produto, quantidade, valor_unitario, data_entrada], function (insertError) {
                 console.log(insertError)
                 if (insertError) {
                     return res.status(500).send({
@@ -133,16 +128,24 @@ router.post('/', (req, res, nxt) => {
                     });
                 }
                 res.status(201).send({
-                    mensagem: "Produto criado com sucesso!",
-                    produtos: {
+                    mensagem: "Entrada criado com sucesso!",
+                    entradas: {
                         id: this.lastID,
-                        descricao: descricao,
-                        estoque_minimo: estoque_minimo
+                        quantidade,
+                        valor_unitario:valor_unitario,
+                        data_entrada
                     }
                 });
             });
     });
-});
+
+
+
+
+
+
+
+
 
 
 // Função para validar formato de e-mail
@@ -155,15 +158,17 @@ router.post('/', (req, res, nxt) => {
 
 
 
-// Rota para atualizar um usuário existente
-router.put("/", (req, res, next) => {
-    const { status, descricao, estoqueminimo, estoquemaximo } = req.body;
 
-    if (!id || !nome || !email || !senha) {
+
+// Rota para atualizar um entrada existente
+router.put("/", (req, res, next) => {
+    const { id, id_produto, quantidade, valor_unitario, data_entrada } = req.body;
+
+    if (!id_produto || !quantidade || !valor_unitario || !data_entrada) {
         return res.status(400).send({ error: "Parâmetros inválidos" });
     }
 
-    db.run("UPDATE PRODUTO SET status=?, descicao=?, estoqueminimo=?,estoquemaximo=? WHERE id=?", [status, descricao, estoqueminimo, estoquemaximo], (error) => {
+    db.run("UPDATE ENTRADA SET id_produto=?, quantidade=?, valor_unitario=?,data_entrada=? WHERE id=?", [id_produto, quantidade, valor_unitario, data_entrada,id], (error) => {
         if (error) {
 
             return res.status(500).send({
@@ -178,10 +183,11 @@ router.put("/", (req, res, next) => {
 
 
 
+
 // Rota para excluir um usuário pelo ID
 router.delete("/:id", (req, res, next) => {
     const { id } = req.params;
-    db.run("DELETE FROM produto WHERE id=?", id, (error) => {
+    db.run("DELETE FROM entrada WHERE id=?", id, (error) => {
         if (error) {
             return res.status(500).send({
                 error: error.message
