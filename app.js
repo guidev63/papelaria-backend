@@ -12,8 +12,7 @@ app.use(morgan("dev"));
 const rotaUsuario = require("./routes/rotaUsuario");
 const rotaProduto = require("./routes/rotaProduto");
 const rotaEntrada = require("./routes/rotaEntrada");
-
-
+const rotaSaida = require("./routes/rota.Saida");
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
@@ -32,7 +31,7 @@ app.use((req, res, next) => {
 app.use("/usuario", rotaUsuario);
 app.use("/produtos", rotaProduto);
 app.use("/entrada", rotaEntrada);
-
+app.use("/saida", rotaSaida);
 
 app.use((req, res, next) => {
     const erro = new Error("Não encontrado!");
