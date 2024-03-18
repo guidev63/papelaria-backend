@@ -6,7 +6,7 @@ const db = new sqlite3.Database("database.db");
 
 
 
-db.run("CREATE TABLE IF NOT EXISTS saida (id INTEGER PRIMARY KEY AUTOINCREMENT, id_produto INTEGER, quantidade REAL, valor_unitario REAL, data_saida DATE)", (createTableError) => {
+db.run("CREATE TABLE IF NOT EXISTS estoque (id INTEGER PRIMARY KEY AUTOINCREMENT, id_produto INTEGER, quantidade REAL, valor_unitario REAL, data_saida DATE)", (createTableError) => {
 
 
     if (createTableError) {

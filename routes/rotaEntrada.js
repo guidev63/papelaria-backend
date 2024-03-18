@@ -5,6 +5,17 @@ const db = new sqlite3.Database("database.db");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+db.run("CREATE TABLE IF NOT EXISTS entrada (id INTEGER PRIMARY KEY AUTOINCREMENT, id_produto INTEGER, quantidade REAL, valor_unitario REAL, data_entrada DATE)", (createTableError) => {
+
+
+    if (createTableError) {
+        return res.status(500).send({
+            error: createTableError.message
+        });
+    }
+
+    // O restante do código, se necessário...
+});
 // Mensagens de sucesso e erro
 const SUCCESS_MESSAGE = "Operação realizada com sucesso";
 const ERROR_MESSAGE = "Erro ao executar operação";
@@ -62,8 +73,23 @@ router.get("/", (req, res, next) => {
 //});
 
 
-
-
+function atualizarestoque(id_produto,quantidade,valor_unitario){
+    db.all('SELECT * FROM estoque WHERE id_produto=?',[id_produto], (error, rows) => {
+        if (error) {
+            return false;
+        }
+        if(rows.length>0){
+            console.log("tem dados, alterar os dados")
+        }else{
+            db.serialize(() => {
+                const insertEstoque = db.prepare("INSERT INTO estoque(id_produto, quantidade, valor_unitario) VALUES(?,?,?)");
+                insertEstoque.run(id_produto, quantidade, valor_unitario);
+                insertEstoque.finalize();
+            });
+        }
+    });
+    return true;
+}
 // Rota para criar um novo entradas 
 router.post('/', (req, res, nxt) => {
     
@@ -128,6 +154,7 @@ router.post('/', (req, res, nxt) => {
                         response: null
                     });
                 }
+               atualizarestoque(id_produto,quantidade,valor_unitario)
                 res.status(201).send({
                     mensagem: "Entrada criado com sucesso!",
                     entradas: {
