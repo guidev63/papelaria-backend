@@ -5,6 +5,7 @@ const db = new sqlite3.Database("database.db");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 // Mensagens de sucesso e erro
+
 const SUCCESS_MESSAGE = "Operação realizada com sucesso";
 const ERROR_MESSAGE = "Erro ao executar operação";
 

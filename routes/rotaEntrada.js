@@ -22,12 +22,15 @@ const ERROR_MESSAGE = "Erro ao executar operação";
 
  
 
+
+
 // Rota para obter uma Entrada pelo ID
 router.get("/:id", (req, res, next) => {
     const { id } = req.params;
 
     db.all("SELECT * FROM Entrada WHERE id=?", [id], (error, rows) => {
         if (error) {
+          
             return res.status(500).send({
                 error: error.message
             });
@@ -42,17 +45,29 @@ router.get("/:id", (req, res, next) => {
 
 
 
+
+
 // Rota para listar todos os entradas 
 router.get("/", (req, res, next) => {
-    db.all('SELECT * FROM entrada INNER JOIN produto ON entrada.id_produto = produto.id;', (error, rows) => {
+    db.all(`SELECT 
+    entrada.id as id, 
+    entrada.id_produto as id_produto,
+    entrada.quantidade as quantidade,
+    produto.descricao as descricao,
+    entrada.data_entrada as data_entrada,
+    entrada.valor_unitario as valor_unitario
+    FROM entrada 
+    INNER JOIN produto 
+    ON entrada.id_produto = produto.id`, (error, rows) => {
         if (error) {
+            
             return res.status(500).send({
                 error: error.message
             });
         }
         res.status(200).send({
             mensagem: "Aqui estão todas as Entradas",
-            produtos: rows
+            entradas: rows
         });
     });
 });
@@ -79,7 +94,15 @@ function atualizarestoque(id_produto,quantidade,valor_unitario){
             return false;
         }
         if(rows.length>0){
-            console.log("tem dados, alterar os dados")
+            let qtde =rows[0].quantidade;
+            qtde=parseFloat(qtde)+parseFloat(quantidade)
+            db.run("UPDATE estoque SET quantidade=?, valor_unitario=? WHERE id_produto=?",
+            [qtde, valor_unitario, id_produto], (error) => {
+                if (error) {
+                   return false
+                }
+            });
+  
         }else{
             db.serialize(() => {
                 const insertEstoque = db.prepare("INSERT INTO estoque(id_produto, quantidade, valor_unitario) VALUES(?,?,?)");

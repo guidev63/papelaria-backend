@@ -10,6 +10,7 @@ db.run("CREATE TABLE IF NOT EXISTS estoque (id INTEGER PRIMARY KEY AUTOINCREMENT
 
 
     if (createTableError) {
+        
         return res.status(500).send({
             error: createTableError.message
         });
@@ -17,11 +18,11 @@ db.run("CREATE TABLE IF NOT EXISTS estoque (id INTEGER PRIMARY KEY AUTOINCREMENT
 
     // O restante do código, se necessário...
 });
-// Rota para obter uma Entrada pelo ID
+// Rota para obter uma estoque pelo ID
 router.get("/:id", (req, res, next) => {
     const { id } = req.params;
 
-    db.all("SELECT * FROM saida WHERE id=?", [id], (error, rows) => {
+    db.all("SELECT * FROM estoque WHERE id=?", [id], (error, rows) => {
         if (error) {
             return res.status(500).send({
                 error: error.message
@@ -29,8 +30,8 @@ router.get("/:id", (req, res, next) => {
         }
 
         res.status(200).send({
-            mensagem: "Aqui está a saida  solicitado",
-            entrada: rows
+            mensagem: "Aqui está a estoque  solicitado",
+            estoques: rows
         });
     });
 });
@@ -43,17 +44,28 @@ router.get("/:id", (req, res, next) => {
 
 
 
-// Rota para listar todos os entradas 
+// Rota para listar todos os estoques 
+// Rota para listar todos os estoques 
 router.get("/", (req, res, next) => {
-    db.all('SELECT * FROM saida INNER JOIN produto ON saida.id_produto = produto.id;', (error, rows) => {
-        if (error) {
+    db.all(`SELECT 
+    estoque.id as id, 
+    estoque.id_produto as id_produto,
+    estoque.quantidade as quantidade,
+    produto.descricao as descricao,
+    estoque.valor_unitario as valor_unitario
+    FROM estoque 
+    INNER JOIN produto 
+    ON estoque.id_produto = produto.id`, (error, rows) => {
+
+        if (error) {  
+                    
             return res.status(500).send({
                 error: error.message
             });
         }
         res.status(200).send({
-            mensagem: "Aqui está a lista de todas as Saída",
-            produtos: rows
+            mensagem: "Aqui está a lista de todas as estoque",
+            estoque: rows // Corrigindo para retornar a propriedade "estoque"
         });
     });
 });
@@ -66,7 +78,7 @@ router.get("/", (req, res, next) => {
 
 
 
-// Rota para criar um novo entradas 
+// Rota para criar um novo estoques 
 router.post('/', (req, res, nxt) => {
 
 
@@ -101,7 +113,8 @@ router.post('/', (req, res, nxt) => {
 
 
 
-    // Insere o nova entradas  no banco de dados
+    
+    // Insere o nova estoque  no banco de dados
     db.run(`INSERT INTO SAIDA ( id_produto, quantidade,valor_unitario,data_saida) VALUES (?,?,?,?)`,
         [id_produto, quantidade, valor_unitario, data_saida], function (insertError) {
             console.log(insertError)
@@ -113,7 +126,7 @@ router.post('/', (req, res, nxt) => {
             }
             res.status(201).send({
                 mensagem: "saida criado com sucesso!",
-                entradas: {
+                estoques: {
                     id: this.lastID,
                     quantidade,
                     valor_unitario: valor_unitario,
@@ -121,15 +134,14 @@ router.post('/', (req, res, nxt) => {
                 }
             });
         });
-}); 
+});
 
 
 
 
 
 
-
-// Rota para atualizar um entrada existente
+// Rota para atualizar um estoque existente
 router.put("/", (req, res, next) => {
     const { id, id_produto, quantidade, valor_unitario, data_saida } = req.body;
 
@@ -139,7 +151,7 @@ router.put("/", (req, res, next) => {
     }
 
 
-    db.run("UPDATE ENTRADA SET id_produto=?, quantidade=?, valor_unitario=?,data_saida=? WHERE id=?", [id_produto, quantidade, valor_unitario, data_saida, id], (error) => {
+    db.run("UPDATE estoque SET id_produto=?, quantidade=?, valor_unitario=?,data_saida=? WHERE id=?", [id_produto, quantidade, valor_unitario, data_saida, id], (error) => {
         if (error) {
 
             return res.status(500).send({
@@ -149,9 +161,6 @@ router.put("/", (req, res, next) => {
         res.status(200).send({ mensagem: SUCCESS_MESSAGE });
     });
 });
-
-
-
 
 
 
