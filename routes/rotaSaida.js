@@ -99,7 +99,31 @@ router.post('/', (req, res, nxt) => {
         });
     }
 
-
+    function atualizarestoque(id_produto,quantidade,valor_unitario){
+        db.all('SELECT * FROM estoque WHERE id_produto=?',[id_produto], (error, rows) => {
+            if (error) {
+                return false;
+            }
+            if(rows.length>0){
+                let qtde =rows[0].quantidade;
+                qtde=parseFloat(qtde)-parseFloat(quantidade)
+                db.run("UPDATE estoque SET quantidade=?, valor_unitario=? WHERE id_produto=?",
+                [qtde, valor_unitario, id_produto], (error) => {
+                    if (error) {
+                       return false
+                    }
+                });
+      
+            }else{
+                db.serialize(() => {
+                    const insertEstoque = db.prepare("INSERT INTO estoque(id_produto, quantidade, valor_unitario) VALUES(?,?,?)");
+                    insertEstoque.run(id_produto, quantidade, valor_unitario);
+                    insertEstoque.finalize();
+                });
+            }
+        });
+        return true;
+    }
 
     // Insere o nova entradas  no banco de dados
     db.run(`INSERT INTO SAIDA ( id_produto, quantidade,valor_unitario,data_saida) VALUES (?,?,?,?)`,
@@ -111,6 +135,7 @@ router.post('/', (req, res, nxt) => {
                     response: null
                 });
             }
+            atualizarestoque(id_produto,quantidade,valor_unitario)
             res.status(201).send({
                 mensagem: "saida criado com sucesso!",
                 entradas: {

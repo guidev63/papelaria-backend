@@ -10,7 +10,7 @@ const SUCCESS_MESSAGE = "Operação realizada com sucesso";
 const ERROR_MESSAGE = "Erro ao executar operação";
 
 
-// Rota para obter um usuário pelo ID
+// Rota para obter um Produto pelo ID
 router.get("/:id", (req, res, next) => {
     const { id } = req.params;
 
@@ -28,7 +28,7 @@ router.get("/:id", (req, res, next) => {
     });
 });
 
-// Rota para listar todos os usuários
+// Rota para listar todos os Produtos
 router.get("/", (req, res, next) => {
     db.all("SELECT * FROM produto ", (error, rows) => {
         if (error) {
@@ -55,7 +55,7 @@ router.get("/", (req, res, next) => {
 //   });
 //});
 
-// Rota para criar um novo usuário
+// Rota para criar um novo Produto
 router.post('/', (req, res, nxt) => {
     db.run("CREATE TABLE IF NOT EXISTS produto (id INTEGER PRIMARY KEY AUTOINCREMENT, status TEXT, descricao TEXT, estoqueminimo REAL, estoquemaximo REAL)", (createTableError) => {
 
@@ -68,7 +68,7 @@ router.post('/', (req, res, nxt) => {
         // O restante do código, se necessário...
     });
 
-    const { status, descricao, estoque_minimo, estoque_maximo } = req.body;
+    const { status, descricao, estoque_minimo, estoque_maximo,id} = req.body;
 
     // Validação dos campos
     let msg = [];
@@ -123,7 +123,7 @@ router.post('/', (req, res, nxt) => {
 
 
 
-        // Insere o novo usuário no banco de dados
+        // Insere o novo Produto no banco de dados
         db.run(`INSERT INTO PRODUTO ( status, descricao,estoque_minimo,estoque_maximo) VALUES (?,?,?,?)`,
             [status, descricao, estoque_minimo, estoque_maximo], function (insertError) {
                 console.log(insertError)

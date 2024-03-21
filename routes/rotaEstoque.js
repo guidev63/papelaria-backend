@@ -4,8 +4,6 @@ const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("database.db");
 
 
-
-
 db.run("CREATE TABLE IF NOT EXISTS estoque (id INTEGER PRIMARY KEY AUTOINCREMENT, id_produto INTEGER, quantidade REAL, valor_unitario REAL, data_saida DATE)", (createTableError) => {
 
 
@@ -65,7 +63,7 @@ router.get("/", (req, res, next) => {
         }
         res.status(200).send({
             mensagem: "Aqui está a lista de todas as estoque",
-            estoque: rows // Corrigindo para retornar a propriedade "estoque"
+            estoques: rows // Corrigindo para retornar a propriedade "estoque"
         });
     });
 });
