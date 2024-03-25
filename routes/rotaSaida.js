@@ -124,7 +124,7 @@ router.post('/', (req, res, nxt) => {
         });
         return true;
     }
-
+ 
     // Insere o nova entradas  no banco de dados
     db.run(`INSERT INTO SAIDA ( id_produto, quantidade,valor_unitario,data_saida) VALUES (?,?,?,?)`,
         [id_produto, quantidade, valor_unitario, data_saida], function (insertError) {
@@ -183,7 +183,7 @@ router.put("/", (req, res, next) => {
 
 
 
-// Rota para excluir um usuário pelo ID
+// Rota para excluir uma Saída pelo ID
 router.delete("/:id", (req, res, next) => {
     const { id } = req.params;
     db.run("DELETE FROM saida WHERE id=?", id, (error) => {
